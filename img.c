@@ -41,22 +41,39 @@ uint8_t clamp(uint32_t x, uint32_t min, uint32_t max)
 int main(int argc, char *argv[]) {
     size_t len;
     char *cam;
-    uint32_t scr_top;
-    uint32_t scr_left;
+    uint32_t scr_top = 0;
+    uint32_t scr_left = 0;
+    uint32_t img_width;
+    uint32_t img_height;
 
     if (argc >= 2) {
         cam = argv[1];
     } else {
-        fprintf(stderr, "Usage: img YUV-frame [left [top]]\n");
+        fprintf(stderr, "Usage: img YUV-frame width height [left [top]]\n");
         exit(1);
     }
     if (argc >= 3)
-        scr_left = atoi(argv[2]);
+        img_width = atoi(argv[2]);
+    else
+        img_width = 0;
+
+    if (argc >= 4) 
+        img_height = atoi(argv[3]);
+    else
+        img_height = 0;
+
+    if (img_height == 0 || img_width == 0) {
+        fprintf(stderr, "Usage: img YUV-frame left top\n");
+        exit(1);
+    }
+
+    if (argc >= 5) 
+        scr_left = atoi(argv[4]);
     else
         scr_left = 0;
 
-    if (argc >= 4) 
-        scr_top = atoi(argv[3]);
+    if (argc >= 6) 
+        scr_top = atoi(argv[5]);
     else
         scr_top = 0;
 
@@ -74,8 +91,6 @@ int main(int argc, char *argv[]) {
     uint8_t *buf = (uint8_t *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
     if (buf == MAP_FAILED) err(EX_IOERR, "%s", fbPath);
 
-    uint32_t img_width  = 352;
-    uint32_t img_height = 288;
     int seq = 0;
     FILE *fp = fopen(cam, "r");
     if (fp == NULL) {
